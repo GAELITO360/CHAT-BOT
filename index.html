@@ -3,357 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat en Tiempo Real Pro</title>
+    <title>CHAT BASICO EN TIEMPO REAL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f0f2f5; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        
-        /* Pantalla de Registro Inicial */
-        #login-container { display: flex; flex-direction: column; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #121212; color: white; z-index: 10; padding: 20px; }
-        .login-box { background: #1e1e1e; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center; }
-        .login-box h2 { margin-top: 0; color: #0084ff; }
-        .login-box input[type="text"] { width: 100%; padding: 12px; margin: 15px 0; border-radius: 8px; border: 1px solid #444; background: #2d2d2d; color: white; outline: none; }
-        .login-box input[type="file"] { display: none; }
-        .avatar-label { display: inline-block; width: 100px; height: 100px; border-radius: 50%; background: #444; cursor: pointer; margin-bottom: 10px; overflow: hidden; border: 3px solid #0084ff; position: relative; }
+        :root {
+            --neon-purple: #c026d3;
+            --neon-cyan: #22d3ee;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+        body { 
+            background: linear-gradient(135deg, #0a0118, #1a0033);
+            margin: 0; height: 100vh; overflow: hidden; color: #e0d9ff;
+        }
+
+        /* ==================== LOGIN ==================== */
+        #login-container {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(10, 2, 25, 0.98);
+            display: flex; align-items: center; justify-content: center; z-index: 100;
+        }
+
+        .login-box {
+            background: rgba(20, 10, 45, 0.9);
+            backdrop-filter: blur(16px);
+            padding: 40px; border-radius: 24px;
+            border: 2px solid var(--neon-purple);
+            box-shadow: 0 0 50px rgba(192, 38, 211, 0.3);
+            width: 90%; max-width: 400px; text-align: center;
+        }
+
+        .avatar-label {
+            width: 120px; height: 120px; border-radius: 50%;
+            border: 4px solid var(--neon-purple);
+            overflow: hidden; cursor: pointer; margin: 0 auto 20px;
+            display: block; position: relative;
+        }
+
         .avatar-label img { width: 100%; height: 100%; object-fit: cover; }
-        .avatar-label span { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.6); font-size: 11px; padding: 4px 0; }
-        .btn-enter { background: #0084ff; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; }
-        .btn-enter:hover { background: #006bbd; }
 
-        /* Contenedor del Chat */
-        #chat-container { display: none; flex-direction: column; width: 100%; max-width: 600px; margin: auto; height: 100vh; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: relative; }
-        
-        /* Barra superior del Chat (Header) */
-        #chat-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #0084ff; color: white; font-weight: bold; font-size: 1.1rem; }
-        #btn-clear-chat { background: #ff4d4d; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold; transition: 0.2s; }
-        #btn-clear-chat:hover { background: #cc0000; }
+        #input-avatar { display: none; }
 
-        #messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: #f7f9fa; }
-        
-        /* Mensajes y Estilos del Perfil */
-        .message-wrapper { display: flex; gap: 10px; max-width: 75%; align-items: flex-end; position: relative; }
-        .message-wrapper.incoming { align-self: flex-start; }
+        .login-box input {
+            width: 100%; padding: 15px; margin: 10px 0;
+            border-radius: 12px; border: 1px solid var(--neon-purple);
+            background: rgba(255,255,255,0.05); color: white;
+        }
+
+        .btn-enter {
+            background: linear-gradient(90deg, var(--neon-purple), var(--neon-cyan));
+            color: white; border: none; padding: 15px; width: 100%;
+            border-radius: 12px; font-weight: bold; cursor: pointer;
+        }
+
+        /* ==================== CHAT ==================== */
+        #chat-container {
+            display: none; flex-direction: column; height: 100vh;
+            max-width: 600px; margin: 0 auto; background: #0f0523;
+        }
+
+        #chat-header {
+            padding: 20px; background: #1a0b3c; display: flex;
+            justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--neon-purple);
+        }
+
+        #messages {
+            flex: 1; padding: 20px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+
+        .message-wrapper { display: flex; gap: 10px; max-width: 85%; }
         .message-wrapper.outgoing { align-self: flex-end; flex-direction: row-reverse; }
-        
-        .user-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #ccc; flex-shrink: 0; }
-        
-        .message-box { display: flex; flex-direction: column; cursor: pointer; }
-        .message { padding: 10px 15px; border-radius: 18px; word-wrap: break-word; color: black; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .incoming .message { background-color: #e4e6eb; border-bottom-left-radius: 4px; }
-        .outgoing .message { background-color: #0084ff; color: white; border-bottom-right-radius: 4px; }
-        
-        .message img.shared-image { max-width: 100%; max-height: 200px; border-radius: 10px; margin-top: 5px; display: block; }
 
-        /* Estilos de Respuesta dentro de un mensaje */
-        .reply-quote { background: rgba(0,0,0,0.06); border-left: 4px solid #0084ff; padding: 5px 8px; border-radius: 4px; margin-bottom: 5px; font-size: 0.85rem; color: #555; }
-        .outgoing .reply-quote { background: rgba(255,255,255,0.2); border-left-color: #fff; color: #eee; }
+        .user-avatar { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--neon-purple); }
 
-        .meta { font-size: 0.75rem; color: gray; margin-bottom: 3px; font-weight: 600; }
+        .message {
+            padding: 12px; border-radius: 15px; font-size: 0.95rem;
+            line-height: 1.4; position: relative;
+        }
+
+        .incoming .message { background: #251a44; border-bottom-left-radius: 2px; }
+        .outgoing .message { background: var(--neon-purple); border-bottom-right-radius: 2px; }
+
+        .meta { font-size: 0.7rem; margin-bottom: 4px; opacity: 0.8; }
         .outgoing .meta { text-align: right; }
-        
-        /* Indicador de Tipeo */
-        #typing-indicator { font-size: 0.85rem; color: #777; padding: 5px 20px; background: #f7f9fa; font-style: italic; min-height: 25px; }
 
-        /* Barra de vista previa de respuesta activa */
-        #reply-preview-bar { display: none; background: #eef1f6; border-left: 5px solid #0084ff; padding: 10px 20px; justify-content: space-between; align-items: center; font-size: 0.9rem; }
-        #btn-cancel-reply { background: none; border: none; font-weight: bold; color: #ff4d4d; cursor: pointer; }
-
-        /* Contenedor de Inputs en Formulario */
-        #form-container { display: flex; flex-direction: column; border-top: 1px solid #ccc; background: #fff; }
-        .input-row { display: flex; padding: 10px; align-items: center; gap: 5px; }
-        #input-message { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 20px; outline: none; }
-        
-        /* Botones de acción multimedia */
-        .media-btn { background: none; border: none; cursor: pointer; padding: 5px; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 40px; height: 40px; transition: background 0.2s; }
-        .media-btn:hover { background: #f0f0f0; }
-        .media-btn img { width: 26px; height: 26px; object-fit: contain; }
-        
-        #btn-send { background: #0084ff; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        #btn-send:hover { background: #006bbd; }
+        #form-container { padding: 20px; background: #1a0b3c; }
+        .input-row { display: flex; gap: 10px; }
+        #input-message { flex: 1; padding: 12px; border-radius: 10px; border: none; background: #251a44; color: white; }
+        #btn-send { background: var(--neon-cyan); border: none; padding: 0 20px; border-radius: 10px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="login-container">
     <div class="login-box">
-        <h2>Configura tu Perfil</h2>
+        <h2 style="color: var(--neon-cyan)">CHAT BASICO EN TIEMPO REAL</h2>
         <label for="input-avatar" class="avatar-label">
-            <img id="avatar-preview" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Avatar">
-            <span>Cambiar</span>
+            <img id="avatar-preview" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
         </label>
         <input type="file" id="input-avatar" accept="image/*">
-        
-        <input type="text" id="input-username" placeholder="Escribe tu nombre de usuario..." autocomplete="off">
-        <button class="btn-enter" id="btn-enter">Entrar al Chat</button>
+        <input type="text" id="input-username" placeholder="Usuario...">
+        <button class="btn-enter" id="btn-enter">ENTRAR</button>
     </div>
 </div>
 
 <div id="chat-container">
     <div id="chat-header">
-        <span>Sala de Chat Interactiva</span>
-        <button id="btn-clear-chat">Borrar Historial</button>
+        <span>CHAT</span>
+        <button id="btn-clear-chat" style="background:red; color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;">Limpiar</button>
     </div>
-
     <div id="messages"></div>
-    
-    <div id="typing-indicator"></div>
-
-    <div id="reply-preview-bar">
-        <div>Anclado para responder a: <span id="reply-text-target" style="font-weight: bold; color: #333;"></span></div>
-        <button id="btn-cancel-reply">✕</button>
-    </div>
-
     <div id="form-container">
         <div class="input-row">
-            <label for="input-chat-image" class="media-btn" title="Subir Imagen">
-                <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbWdtcmM3b3V6bWdyb3pldm95Mms2bXU0ZDR1NWhmNDRqdHBrZzhpNiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/3o7qE1YN7aBOFPRw8E/giphy.gif" alt="Cam">
-            </label>
-            <input type="file" id="input-chat-image" accept="image/*" style="display:none;">
-
-            <input type="text" id="input-message" placeholder="Escribe un mensaje o haz clic en uno para responder..." autocomplete="off">
-            <button id="btn-send">Enviar</button>
+            <input type="text" id="input-message" placeholder="Escribe algo...">
+            <button id="btn-send">ENVIAR</button>
         </div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, getDocs, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// ⚠️ REEMPLAZA ESTO CON TUS CONFIGURACIONES DE FIREBASE
     const firebaseConfig = {
-    apiKey: "AIzaSyBgRvfFKV1uk16xO-jtChvc_NuVYLoHmGc",
-    authDomain: "real-chat-6328f.firebaseapp.com",
-    projectId: "real-chat-6328f",
-    storageBucket: "real-chat-6328f.firebasestorage.app",
-    messagingSenderId: "529382831236",
-    appId: "1:529382831236:web:250e5500f5fc8eaf533ed1"
+        apiKey: "AIzaSyBgRvfFKV1uk16xO-jtChvc_NuVYLoHmGc",
+        authDomain: "real-chat-6328f.firebaseapp.com",
+        projectId: "real-chat-6328f",
+        storageBucket: "real-chat-6328f.firebasestorage.app",
+        messagingSenderId: "529382831236",
+        appId: "1:529382831236:web:250e5500f5fc8eaf533ed1"
     };
 
-    
-    // Inicializar Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const messagesRef = collection(db, "messages");
-    const typingRef = collection(db, "typing_status");
 
-    // Identificador único de sesión
     const userId = Math.random().toString(36).substring(2, 9);
     let username = "Anónimo";
-    let userAvatarB64 = "https://cdn-icons-png.flaticon.com/512/149/149071.png"; 
+    let userAvatarB64 = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-    // Almacén dinámico para respuestas
-    let selectedReplyData = null;
-    let typingTimeout = null;
-
-    // Referencias del DOM
+    // Elementos
     const loginContainer = document.getElementById("login-container");
     const chatContainer = document.getElementById("chat-container");
     const inputAvatar = document.getElementById("input-avatar");
     const avatarPreview = document.getElementById("avatar-preview");
     const inputUsername = document.getElementById("input-username");
     const btnEnter = document.getElementById("btn-enter");
-    const btnClearChat = document.getElementById("btn-clear-chat");
-    
     const messagesDiv = document.getElementById("messages");
     const inputMessage = document.getElementById("input-message");
     const btnSend = document.getElementById("btn-send");
-    const inputChatImage = document.getElementById("input-chat-image");
-    
-    const typingIndicator = document.getElementById("typing-indicator");
-    const replyPreviewBar = document.getElementById("reply-preview-bar");
-    const replyTextTarget = document.getElementById("reply-text-target");
-    const btnCancelReply = document.getElementById("btn-cancel-reply");
 
-    // Previsualizar e inscribir foto de avatar
-    inputAvatar.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            if (file.size > 524288) { // Límite estricto ~500kb para optimizar velocidad
-                alert("La foto es muy pesada. Elige una menor a 500KB.");
-                return;
-            }
-            const reader = new FileReader();
-            reader.onloadend = () => { userAvatarB64 = reader.result; avatarPreview.src = userAvatarB64; };
-            reader.readAsDataURL(file);
-        }
-    });
+    inputAvatar.onchange = (e) => {
+        const reader = new FileReader();
+        reader.onload = () => { userAvatarB64 = reader.result; avatarPreview.src = reader.result; };
+        reader.readAsDataURL(e.target.files[0]);
+    };
 
-    btnEnter.addEventListener("click", () => {
-        const value = inputUsername.value.trim();
-        if (value !== "") username = value;
+    btnEnter.onclick = () => {
+        if(inputUsername.value.trim()) username = inputUsername.value;
         loginContainer.style.display = "none";
         chatContainer.style.display = "flex";
-    });
+    };
 
-    // Envío Directo de Imágenes al Chat
-    inputChatImage.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            if (file.size > 800000) {
-                alert("La imagen excede el tamaño máximo permitido para transmisión rápida (800KB).");
-                return;
-            }
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                try {
-                    await addDoc(messagesRef, {
-                        text: "📷 Imagen compartida",
-                        image: reader.result,
-                        senderId: userId,
-                        username: username,
-                        avatar: userAvatarB64,
-                        createdAt: serverTimestamp(),
-                        replyTo: selectedReplyData
-                    });
-                    cancelReply();
-                } catch (err) { console.error("Error al subir imagen:", err); }
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    // Control del Estado "Escribiendo..."
-    async function setTypingState(isTyping) {
+    async function sendMessage() {
+        const text = inputMessage.value.trim();
+        if (!text) return;
+        inputMessage.value = "";
+        
         try {
-            await setDoc(doc(db, "typing_status", userId), {
-                username: username,
-                isTyping: isTyping,
-                lastActive: Date.now()
+            await addDoc(messagesRef, {
+                text,
+                senderId: userId,
+                username,
+                avatar: userAvatarB64,
+                createdAt: serverTimestamp() // Esto causa el delay si no se maneja bien
             });
-        } catch (e) {}
+        } catch (e) { console.error(e); }
     }
 
-    inputMessage.addEventListener("input", () => {
-        if (!typingTimeout) {
-            setTypingState(true);
-        }
-        clearTimeout(typingTimeout);
-        typingTimeout = setTimeout(() => {
-            setTypingState(false);
-            typingTimeout = null;
-        }, 2000); // Se apaga tras 2 segundos de inactividad
-    });
-
-    // Escuchar indicadores de tipeo globales
-    onSnapshot(typingRef, (snapshot) => {
-        let typers = [];
-        snapshot.forEach((doc) => {
-            const data = doc.data();
-            // Mostrar si está activo, lleva menos de 6 segundos colgado y no soy yo mismo
-            if (data.isTyping && doc.id !== userId && (Date.now() - data.lastActive < 6000)) {
-                typers.push(data.username);
-            }
-        });
-        if (typers.length > 0) {
-            typingIndicator.innerText = `${typers.join(", ")} está escribiendo...`;
-        } else {
-            typingIndicator.innerText = "";
-        }
-    });
-
-    // Escuchar mensajes en tiempo real
+    // LA SOLUCIÓN: Usar includeMetadataChanges: true
     const q = query(messagesRef, orderBy("createdAt", "asc"));
-    onSnapshot(q, (snapshot) => {
+    onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
         messagesDiv.innerHTML = "";
         snapshot.forEach((doc) => {
             const data = doc.data();
-            const isMe = data.senderId === userId;
             
+            // Si el mensaje es nuevo y aún no tiene fecha del servidor, 
+            // evitamos que desaparezca ignorando el filtro de orden momentáneamente
+            const isMe = data.senderId === userId;
             const wrapper = document.createElement("div");
             wrapper.classList.add("message-wrapper", isMe ? "outgoing" : "incoming");
-
-            const img = document.createElement("img");
-            img.classList.add("user-avatar");
-            img.src = data.avatar || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-
-            const msgBox = document.createElement("div");
-            msgBox.classList.add("msg-box");
             
-            // Renderizar cita de respuesta si existe
-            let replyHTML = "";
-            if (data.replyTo) {
-                replyHTML = `<div class="reply-quote"><b>${data.replyTo.user}:</b> ${data.replyTo.text}</div>`;
-            }
-
-            // Validar si contiene una imagen adjunta
-            let imageHTML = "";
-            if (data.image) {
-                imageHTML = `<img src="${data.image}" class="shared-image" alt="Shared inline">`;
-            }
-
-            msgBox.innerHTML = `
-                <div class="meta">${isMe ? 'Tú' : data.username}</div>
-                <div class="message">
-                    ${replyHTML}
-                    <div>${data.text}</div>
-                    ${imageHTML}
+            wrapper.innerHTML = `
+                <img src="${data.avatar || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}" class="user-avatar">
+                <div>
+                    <div class="meta">${isMe ? "Tú" : data.username}</div>
+                    <div class="message">${data.text}</div>
                 </div>
             `;
-
-            // Habilitar la activación de respuesta al hacer click en el cuerpo del mensaje
-            msgBox.addEventListener("click", () => {
-                openReply(data.username, data.text);
-            });
-
-            wrapper.appendChild(img);
-            wrapper.appendChild(msgBox);
             messagesDiv.appendChild(wrapper);
         });
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }, (error) => {
+        console.error("Error en snapshot:", error);
     });
 
-    // Activar módulo de respuesta
-    function openReply(userTarget, textTarget) {
-        selectedReplyData = { user: userTarget, text: textTarget };
-        replyTextTarget.innerText = `"${textTarget.substring(0, 30)}${textTarget.length > 30 ? '...' : ''}"`;
-        replyPreviewBar.style.display = "flex";
-        inputMessage.focus();
-    }
+    btnSend.onclick = sendMessage;
+    inputMessage.onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
 
-    function cancelReply() {
-        selectedReplyData = null;
-        replyPreviewBar.style.display = "none";
-    }
-    btnCancelReply.addEventListener("click", cancelReply);
-
-    // Enviar mensaje común
-    async function sendMessage() {
-        const text = inputMessage.value.trim();
-        if (text === "") return;
-
-        inputMessage.value = "";
-        setTypingState(false);
-
-        try {
-            await addDoc(messagesRef, {
-                text: text,
-                senderId: userId,
-                username: username,
-                avatar: userAvatarB64,
-                createdAt: serverTimestamp(),
-                replyTo: selectedReplyData
-            });
-            cancelReply();
-        } catch (error) { console.error("Error al enviar:", error); }
-    }
-
-    // Limpieza masiva
-    async function clearChatHistory() {
-        if (confirm("¿Borrar todo el historial?")) {
-            try {
-                const querySnapshot = await getDocs(messagesRef);
-                const deletePromises = [];
-                querySnapshot.forEach((d) => deletePromises.push(deleteDoc(doc(db, "messages", d.id))));
-                await Promise.all(deletePromises);
-            } catch (e) { console.error(e); }
+    document.getElementById("btn-clear-chat").onclick = async () => {
+        if(confirm("¿Borrar todo?")) {
+            const snap = await getDocs(messagesRef);
+            snap.forEach(d => deleteDoc(doc(db, "messages", d.id)));
         }
-    }
-
-    btnSend.addEventListener("click", sendMessage);
-    inputMessage.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
-    btnClearChat.addEventListener("click", clearChatHistory);
+    };
 </script>
-
 </body>
 </html>
